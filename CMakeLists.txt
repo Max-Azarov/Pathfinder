@@ -8,7 +8,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # QtCreator supports the following variables for Android, which are identical to qmake Android variables.
@@ -26,20 +26,30 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
+set(TARGET_NAME ${PROJECT_NAME})
+
 if(ANDROID)
-  add_library(pathfinder SHARED
-    main.cpp
-    mainwindow.cpp
-    mainwindow.h
-    mainwindow.ui
-  )
+    add_library(${TARGET_NAME} SHARED)
 else()
-  add_executable(pathfinder
+    add_executable(${TARGET_NAME})
+endif()
+
+
+target_sources( ${TARGET_NAME}
+    PUBLIC
     main.cpp
+
+    PRIVATE
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
-  )
-endif()
+
+    core/include/Broker.h
+    core/include/Graph.h
+    core/include/utils.h
+    core/src/utils.cpp
+    core/src/BrokerBfs.cpp
+    )
+
 
 target_link_libraries(pathfinder PRIVATE Qt5::Widgets)
