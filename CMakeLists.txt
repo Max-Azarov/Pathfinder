@@ -44,11 +44,13 @@ target_sources( ${TARGET_NAME}
     mainwindow.h
     mainwindow.ui
 
-    core/include/Broker.h
+    core/include/IWorker.h
     core/include/Graph.h
     core/include/utils.h
+    core/include/Field.h
     core/src/utils.cpp
-    core/src/BrokerBfs.cpp
+    core/src/Worker.cpp
+
     )
 
 
