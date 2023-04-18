@@ -48,8 +48,10 @@ target_sources( ${TARGET_NAME}
     core/include/Graph.h
     core/include/utils.h
     core/include/Field.h
+
     core/src/utils.cpp
     core/src/Worker.cpp
+    core/src/Field.cpp
 
     )
 

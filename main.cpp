@@ -12,7 +12,10 @@ int main(int argc, char *argv[])
 
     auto worker = IWorker::create();
     if (worker) {
-        qDebug("worker");
+        qDebug() << worker.get();
+
+        auto result = worker->find_path(7, 24);
+        qDebug() << result;
     }
 
     MainWindow w;

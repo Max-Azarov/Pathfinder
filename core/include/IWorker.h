@@ -6,7 +6,7 @@
 
 struct IWorker {
 
-
+    virtual bool find_path(int start, int goal) = 0;
 
 
     static std::unique_ptr<IWorker> create() noexcept;

@@ -6,12 +6,13 @@
 #include "core/include/Field.h"
 
 
-template<int MaxNumConnectedVertices>
 class Graph {
 public:
-    using field_t = Field<MaxNumConnectedVertices>;
+    explicit Graph(Field* field)
+        : m_field(field)
+    {}
 
-    std::pair<std::array<int, MaxNumConnectedVertices>, int> connected_vertices(int u) const noexcept
+    std::pair<std::array<int, 4>, int> connected_vertices(int u) const noexcept
     {
         if (!m_field) {
             return {};
@@ -27,21 +28,12 @@ public:
             return {};
         }
 
-        return m_field->cell_num();
+        return m_field->cells_num();
     }
 
-
-    bool associate_graph_with_field(field_t* field) noexcept
-    {
-        if (!field) {
-            return false;
-        }
-
-        m_field = field;
-    }
 
 private:
-    field_t* m_field;
+    Field* m_field;
 
 }; // class
 
