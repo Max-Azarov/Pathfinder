@@ -27,7 +27,7 @@ public:
      * @brief generate width and height field with random wall cell placement
      * @param width
      * @param height
-     * @param wall_num number of inital walls. If -1 number of wall cells is random
+     * @param wall_num number of inital walls. If <0 number of wall cells is random
      * @return successful
      */
     bool generate(int width, int height, int wall_num) noexcept;

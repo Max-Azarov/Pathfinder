@@ -1,3 +1,6 @@
+#include <random>
+#include <chrono>
+
 #include "core/include/Field.h"
 
 
@@ -79,17 +82,30 @@ bool Field::generate(int width, int height, int wall_num) noexcept
         return false;
     }
 
-    try {
-        m_field.assign(width * height, Field::ECellType::MOVABLE);
-        m_field[0] = Field::ECellType::WALL;
-        m_field[11] = Field::ECellType::WALL;
-        m_field[12] = Field::ECellType::WALL;
-        m_field[13] = Field::ECellType::WALL;
-        m_field[14] = Field::ECellType::WALL;
-        m_field[width * height / 2] = Field::ECellType::WALL;
-        m_field[width * height - 1] = Field::ECellType::WALL;
+    m_width = width;
+    auto const cell_num = width * height;
 
-        m_width = width;
+    try {
+        m_field.assign(cell_num, Field::ECellType::MOVABLE);
+
+        // random indices for wall cells
+        std::mt19937 gen(std::chrono::steady_clock::now().time_since_epoch().count());
+
+        if (wall_num < 0) {
+            wall_num = std::uniform_int_distribution<int>(cell_num / 8, cell_num / 4)(gen);
+        }
+        wall_num = std::min(cell_num, wall_num);
+
+        if (wall_num) {
+            auto seq = std::vector<int>(m_field.size());
+            std::iota(seq.begin(), seq.end(), 0);
+
+            for (int i = 0; i < wall_num; i++) {
+                auto const idx = std::uniform_int_distribution<int>(i, cell_num - 1)(gen);
+                m_field[seq[idx]] = Field::ECellType::WALL;
+                std::swap(seq[i], seq[idx]);
+            }
+        }
 
         return true;
     }

@@ -20,7 +20,7 @@ public:
     {
         auto const width = 5;
         auto const height = 10;
-        m_field.generate(width, height, 3);
+        m_field.generate(width, height, -1);
         auto graph = Graph(&m_field);
 
         auto path = std::vector<int>{};
