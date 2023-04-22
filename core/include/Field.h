@@ -17,20 +17,20 @@ public:
         int x, y;
     };
 
-    std::pair<std::array<Point, CONNECTIVITY>, int> movable_neighbors(Point const&) const noexcept;
-    std::pair<std::array<int, CONNECTIVITY>, int> movable_neighbors(int global_cell_idx) const noexcept;
+    std::pair<std::array<Point, CONNECTIVITY>, int> movableNeighbors(Point const&) const noexcept;
+    std::pair<std::array<int, CONNECTIVITY>, int> movableNeighbors(int globalCellIdx) const noexcept;
 
-    std::pair<const ECellType*, int> row(int row_idx) const noexcept;
-    int cells_num() const noexcept;
+    std::pair<const ECellType*, int> row(int rowIdx) const noexcept;
+    int cellsNum() const noexcept;
 
     /**
      * @brief generate width and height field with random wall cell placement
      * @param width
      * @param height
-     * @param wall_num number of inital walls. If <0 number of wall cells is random
+     * @param wallNum number of inital walls. If <0 number of wall cells is random
      * @return successful
      */
-    bool generate(int width, int height, int wall_num) noexcept;
+    bool generate(int width, int height, int wallNum) noexcept;
 
 private:
     std::vector<ECellType> m_field{};

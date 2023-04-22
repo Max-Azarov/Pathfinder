@@ -12,23 +12,23 @@ public:
         : m_field(field)
     {}
 
-    std::pair<std::array<int, 4>, int> connected_vertices(int u) const noexcept
+    std::pair<std::array<int, 4>, int> connectedVertices(int u) const noexcept
     {
         if (!m_field) {
             return {};
         }
 
-        return m_field->movable_neighbors(u);
+        return m_field->movableNeighbors(u);
     }
 
 
-    int num_vertices() const noexcept
+    int numVertices() const noexcept
     {
         if (!m_field) {
             return {};
         }
 
-        return m_field->cells_num();
+        return m_field->cellsNum();
     }
 
 

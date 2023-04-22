@@ -4,9 +4,9 @@
 #include "core/include/utils.h"
 
 
-bool utils::bfs_search(Graph const& graph, int start, int goal, std::vector<int>& path)
+bool utils::bfsSearch(Graph const& graph, int start, int goal, std::vector<int>& path)
 {
-    auto const n = graph.num_vertices();
+    auto const n = graph.numVertices();
     path.assign(n, -1);
 
     enum class EVertexColor {
@@ -21,7 +21,7 @@ bool utils::bfs_search(Graph const& graph, int start, int goal, std::vector<int>
     while (!q.empty()) {
         auto const u = q.front();
 
-        auto const vertices = graph.connected_vertices(u);
+        auto const vertices = graph.connectedVertices(u);
         for (auto v = vertices.first.cbegin(), end = vertices.first.cbegin() + vertices.second; v != end; v++) {
 
             if (colors[*v] == EVertexColor::WHITE) {

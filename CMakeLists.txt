@@ -11,40 +11,21 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# QtCreator supports the following variables for Android, which are identical to qmake Android variables.
-# Check http://doc.qt.io/qt-5/deployment-android.html for more information.
-# They need to be set before the find_package(Qt5 ...) call.
-
-#if(ANDROID)
-#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
-#    if (ANDROID_ABI STREQUAL "armeabi-v7a")
-#        set(ANDROID_EXTRA_LIBS
-#            ${CMAKE_CURRENT_SOURCE_DIR}/path/to/libcrypto.so
-#            ${CMAKE_CURRENT_SOURCE_DIR}/path/to/libssl.so)
-#    endif()
-#endif()
-
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
 set(TARGET_NAME ${PROJECT_NAME})
-
-if(ANDROID)
-    add_library(${TARGET_NAME} SHARED)
-else()
-    add_executable(${TARGET_NAME})
-endif()
-
-
-target_sources( ${TARGET_NAME}
+add_executable(${TARGET_NAME})
+target_sources(${TARGET_NAME}
     PUBLIC
     main.cpp
 
     PRIVATE
-    mainwindow.cpp
-    mainwindow.h
-    mainwindow.ui
+    gui/mainwindow.cpp
+    gui/mainwindow.h
+    gui/mainwindow.ui
+    gui/Scene.h
 
-    core/include/IWorker.h
+    core/include/Worker.h
     core/include/Graph.h
     core/include/utils.h
     core/include/Field.h
@@ -55,5 +36,4 @@ target_sources( ${TARGET_NAME}
 
     )
 
-
-target_link_libraries(pathfinder PRIVATE Qt5::Widgets)
+target_link_libraries(${TARGET_NAME} PRIVATE Qt5::Widgets)

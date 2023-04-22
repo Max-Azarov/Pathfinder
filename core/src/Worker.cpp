@@ -1,7 +1,6 @@
 #include <QDebug>
 
-#include "core/include/IWorker.h"
-#include "core/include/Field.h"
+#include "core/include/Worker.h"
 #include "core/include/utils.h"
 #include "core/include/Graph.h"
 
@@ -9,39 +8,35 @@
 #define NAME_VALUE(text) __FILE__ << ':' << __LINE__ << ':' << #text << ": " << text
 
 
-class Worker : public IWorker
+bool Worker::findPath(int start, int goal)
 {
-private:
-    Field m_field{};
+    auto const width = 5;
+    auto const height = 10;
+    m_field.generate(width, height, -1);
+    auto graph = Graph(&m_field);
 
+    auto path = std::vector<int>{};
+    auto result = false;
 
-public:
-    bool find_path(int start, int goal) override
-    {
-        auto const width = 5;
-        auto const height = 10;
-        m_field.generate(width, height, -1);
-        auto graph = Graph(&m_field);
-
-        auto path = std::vector<int>{};
-        auto result = false;
-
-        try {
-            result = utils::bfs_search(graph, start, goal, path);
-        }
-        catch(...) {
-            // TODO
-        }
-
-        qDebug() << NAME_VALUE(result);
-
-        return result;
+    try {
+        result = utils::bfsSearch(graph, start, goal, path);
+    }
+    catch(...) {
+        // TODO
     }
 
-}; // class
+    qDebug() << NAME_VALUE(result);
+
+    return result;
+}
+
+bool Worker::generateField(int width, int height)
+{
+    return m_field.generate(width, height, -1);
+}
 
 
-std::unique_ptr<IWorker> IWorker::create() noexcept {
+std::unique_ptr<Worker> Worker::create() noexcept {
     try {
         return std::make_unique<Worker>();
     }

@@ -9,7 +9,7 @@
 
 namespace utils {
 
-bool bfs_search(Graph const& graph, int start, int goal, std::vector<int>& path);
+bool bfsSearch(Graph const& graph, int start, int goal, std::vector<int>& path);
 
 
 } // namespace
