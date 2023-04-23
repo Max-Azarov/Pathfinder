@@ -1,6 +1,7 @@
 #include <QDebug>
 #include <QGraphicsScene>
 #include <QGraphicsRectItem>
+#include <QPaintEvent>
 
 #include "gui/mainwindow.h"
 #include "./ui_mainwindow.h"
@@ -21,10 +22,14 @@ bool MainWindow::initWindow()
         ui = new Ui::MainWindow;
         ui->setupUi(this);
 
-        auto const colsRows = generate();
-        createScene(colsRows.first, colsRows.second);
+        generate();
 
         QObject::connect(ui->pushButtonGenerate, &QPushButton::released, this, &MainWindow::generate);
+
+        if (m_rowsCols.isEmpty()) {
+            qDebug() << __FILE__ << ":" << __LINE__ << ":" << "empty";
+            return false;
+        }
 
         return true;
     }
@@ -41,47 +46,53 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-std::pair<int, int> MainWindow::generate()
+void MainWindow::generate()
 {
-    //    qDebug() << __FUNCTION__;
-
     auto success = true;
     auto ok = false;
-    m_width = ui->lineEditWidth->text().toInt(&ok);
+    m_rowsCols.setWidth(ui->lineEditWidth->text().toInt(&ok));
     success &= ok;
-    m_height = ui->lineEditHeight->text().toInt(&ok);
+    m_rowsCols.setHeight(ui->lineEditHeight->text().toInt(&ok));
     success &= ok;
 
     if (!success) {
-        return {};
+        qDebug() << __FILE__ << ":" << __LINE__ << ":" << "empty";
+        m_rowsCols = QSize{};
+        return;
     }
 
-    return {m_width, m_height};
+    createScene();
 }
 
 
-Scene* MainWindow::createScene(int cols, int rows)
+void MainWindow::createScene()
 {
+    if (m_rowsCols.isEmpty()) {
+        qDebug() << __FILE__ << ":" << __LINE__ << ":" << "empty";
+        return;
+    }
+
     auto& view = ui->graphicsView;
+    if (!m_scene) {
+        m_scene = new Scene();
 
-    m_scene = new Scene();
+        view->setScene(m_scene);
+        //    view->setRenderHint(QPainter::Antialiasing);
+        //    view->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
+        view->setWindowTitle("Scene");
+        view->setBackgroundBrush(palette().background());
+    }
 
-    view->setScene(m_scene);
-    view->setRenderHint(QPainter::Antialiasing);
-    view->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
-    view->setWindowTitle("Scene");
+    m_scene->init(m_rowsCols.width(), m_rowsCols.height());
+}
 
-    m_scene->init(cols, rows);
-
-    return m_scene;
+void MainWindow::paintEvent(QPaintEvent*)
+{
+    m_scene->initView();
 }
 
 void MainWindow::resizeEvent(QResizeEvent* event)
 {
-    qDebug() << __FUNCTION__;
-    qDebug() << ui->graphicsView->size();
-    qDebug() << ui->graphicsView->sceneRect();
-    ui->graphicsView->setBackgroundBrush(palette().background());
     m_scene->resizeView(event->oldSize(), event->size());
 }
 

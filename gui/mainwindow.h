@@ -16,7 +16,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public slots:
-    std::pair<int, int> generate();
+    void generate();
 
 public:
     MainWindow(QWidget *parent = nullptr);
@@ -25,17 +25,17 @@ public:
     bool initWindow();
 
 protected:
+    void paintEvent(QPaintEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
 
 
 private:
-    Scene* createScene(int width, int height);
+    void createScene();
 
 private:
-    Ui::MainWindow* ui{};
-    Scene* m_scene;
-    int m_width{};
-    int m_height{};
+    Ui::MainWindow* ui = nullptr;
+    Scene* m_scene = nullptr;
+    QSize m_rowsCols{};
 
 }; // class
 

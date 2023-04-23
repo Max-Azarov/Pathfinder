@@ -12,29 +12,17 @@ int main(int argc, char *argv[])
 
     auto worker = Worker::create();
     if (!worker) {
-        qDebug() << __FUNCTION__ << ":" << __LINE__;
+        qDebug() << __FILE__ << ":" << __LINE__ << ":" << "EXIT_FAILURE";
         return EXIT_FAILURE;
     }
 
     MainWindow w{};
     if (!w.initWindow()) {
-        qDebug() << __FUNCTION__ << ":" << __LINE__;
+        qDebug() << __FILE__ << ":" << __LINE__ << ":" << "EXIT_FAILURE";
         return EXIT_FAILURE;
     }
 
-
-
-
-
-
     w.show();
 
-    //    QObject::connect(&w, )
-
-    //    auto response = QObject::connect(&w::lineEditWidth, &QLineEdit::editingFinished),
-    //            &worker, )
-    //            1;
-
     return a.exec();
-
 }

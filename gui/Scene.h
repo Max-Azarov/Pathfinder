@@ -14,6 +14,9 @@ public:
 
     QSize init(int cols, int rows) {
         auto const cellsNum = cols * rows;
+        for (auto const& cell : cells) {
+            removeItem(cell);
+        }
         cells.clear();
         cells.reserve(cellsNum);
         m_cols = cols;
@@ -30,15 +33,25 @@ public:
 
         setSceneRect(0, 0,  m_cellSize * m_cols, m_cellSize * m_rows);
 
+        isFirstPaint = true;
+
         return m_cellSize * QSize{m_cols, m_rows};
     }
 
-    void resizeView(const QSize& oldSize, const QSize& size) {
+    void initView()
+    {
+        if (isFirstPaint && !views().isEmpty()) {
+            views().at(0)->fitInView(sceneRect(), Qt::KeepAspectRatio);
+            isFirstPaint = false;
+        }
+    }
 
-        if (views().size() < 1 ||
+
+    void resizeView(const QSize& oldSize, const QSize& size)
+    {
+        if (views().isEmpty() ||
             oldSize.isEmpty() ||
-            size.isEmpty())
-        {
+            size.isEmpty()) {
             return;
         }
 
@@ -60,30 +73,29 @@ public:
 protected:
     void wheelEvent(QGraphicsSceneWheelEvent* event) override
     {
-        if (views().size() < 1) {
+        if (views().isEmpty()) {
             return;
         }
 
-        auto scaleFactor = event->delta() > 0 ? 1.1 : 0.9;
+        auto constexpr scaleUp = 1.1;
+        auto constexpr scaleDown = 0.9;
 
-        resizeView(scaleFactor);
-    }
+        auto scaleFactor = event->delta() > 0 ? scaleUp : scaleDown;
 
-private:
-    void resizeView(double scaleFactor) {
         auto const& view = views().at(0);
 
         auto const maxScale = qMin(view->rect().width() / sceneRect().width(), view->rect().height() / sceneRect().height());
         auto const minScale = 1.0;
 
         // Получаем текущий масштаб
-        auto const currentScale = views().at(0)->transform().m11();
+        auto const currentScale = view->transform().m11();
 
-        if (currentScale * scaleFactor > maxScale) {
+        auto const destScale = currentScale * scaleFactor;
+        if (destScale > maxScale || destScale < scaleDown - 0.1) {
             view->fitInView(sceneRect(), Qt::KeepAspectRatio);
             return;
         }
-        else if (currentScale * scaleFactor < minScale) {
+        else if (destScale < minScale) {
             scaleFactor = minScale / currentScale;
         }
 
@@ -93,9 +105,11 @@ private:
 private:
     int m_rows{};
     int m_cols{};
-    int const m_cellSize = 10;
+    static int constexpr m_cellSize = 15;
 
     QVector<QGraphicsRectItem*> cells{};
+
+    bool isFirstPaint = true;
 };
 
 #endif // SCENE_H
