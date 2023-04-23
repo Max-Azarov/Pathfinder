@@ -3,8 +3,54 @@
 
 
 #include <QGraphicsScene>
+#include <QGraphicsView>
+#include <QDebug>
 #include <QGraphicsRectItem>
 #include <QGraphicsSceneWheelEvent>
+#include <QGraphicsSceneMouseEvent>
+#include <QGraphicsSimpleTextItem>
+
+
+
+class ATextCell : public QGraphicsSimpleTextItem
+{
+public:
+    ATextCell(QGraphicsRectItem* parent = nullptr)
+        : QGraphicsSimpleTextItem(parent)
+    {
+        setFont(QFont("Arial", 12));
+        setText("A");
+        setPos(parent->rect().center() - boundingRect().center());
+        setParentItem(parent);
+    }
+}; // class
+
+
+class BTextCell : public QGraphicsSimpleTextItem
+{
+public:
+    BTextCell(QGraphicsRectItem* parent = nullptr)
+        : QGraphicsSimpleTextItem(parent)
+    {
+        setFont(QFont("Arial", 12));
+        setText("B");
+        setPos(parent->rect().center() - boundingRect().center());
+        setParentItem(parent);
+    }
+}; // class
+
+
+class Cell : public QGraphicsRectItem
+{
+public:
+    Cell(QGraphicsItem* parent = nullptr)
+        : QGraphicsRectItem(parent)
+    {}
+
+    void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
+
+}; // class
+
 
 
 class Scene : public QGraphicsScene
@@ -12,37 +58,39 @@ class Scene : public QGraphicsScene
 public:
     Scene() = default;
 
-    QSize init(int cols, int rows) {
-        auto const cellsNum = cols * rows;
-        for (auto const& cell : cells) {
-            removeItem(cell);
-        }
-        cells.clear();
-        cells.reserve(cellsNum);
+    QSize init(int cols, int rows)
+    {
+        this->clear();
+        //        cells.clear();
+
+        //        auto const cellsNum = cols * rows;
+        //        cells.reserve(cellsNum);
         m_cols = cols;
         m_rows = rows;
 
         for (int row = 0; row < m_rows; row++) {
             for (int col = 0; col < m_cols; col++) {
-                auto cell = new QGraphicsRectItem();
+                auto cell = new Cell();
                 cell->setRect(col * m_cellSize, row * m_cellSize, m_cellSize, m_cellSize);
                 addItem(cell);
-                cells.push_back(cell);
+                //                cells.push_back(cell);
             }
         }
 
         setSceneRect(0, 0,  m_cellSize * m_cols, m_cellSize * m_rows);
 
-        isFirstPaint = true;
+        m_isFirstPaint = true;
+        unsetA();
+        unsetB();
 
         return m_cellSize * QSize{m_cols, m_rows};
     }
 
     void initView()
     {
-        if (isFirstPaint && !views().isEmpty()) {
+        if (m_isFirstPaint && !views().isEmpty()) {
             views().at(0)->fitInView(sceneRect(), Qt::KeepAspectRatio);
-            isFirstPaint = false;
+            m_isFirstPaint = false;
         }
     }
 
@@ -69,6 +117,14 @@ public:
             return;
         }
     }
+
+    bool setA() { auto const res = m_isACellSet; m_isACellSet = true; return res; }
+    bool unsetA() { auto const res = m_isACellSet; m_isACellSet = false; return res; }
+    bool isASet() { return m_isACellSet; }
+
+    bool setB() { auto const res = m_isBCellSet; m_isBCellSet = true; return res; }
+    bool unsetB() { auto const res = m_isBCellSet; m_isBCellSet = false; return res; }
+    bool isBSet() { return m_isBCellSet; }
 
 protected:
     void wheelEvent(QGraphicsSceneWheelEvent* event) override
@@ -107,9 +163,11 @@ private:
     int m_cols{};
     static int constexpr m_cellSize = 15;
 
-    QVector<QGraphicsRectItem*> cells{};
+    //    QVector<QGraphicsRectItem*> cells{};
 
-    bool isFirstPaint = true;
+    bool m_isFirstPaint = true;
+    bool m_isACellSet = false;
+    bool m_isBCellSet = false;
 };
 
 #endif // SCENE_H
