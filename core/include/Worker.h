@@ -9,7 +9,6 @@
 
 
 class Worker : public QObject {
-    Q_OBJECT
 
 private:
     Field m_field{};
@@ -17,9 +16,8 @@ private:
 public:
 
     bool findPath(int start, int goal);
-
     bool generateField(int width, int height);
-
+    Field const& field() const { return m_field; }
 
     static std::unique_ptr<Worker> create() noexcept;
 
