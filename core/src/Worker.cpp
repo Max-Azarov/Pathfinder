@@ -8,11 +8,8 @@
 #define NAME_VALUE(text) __FILE__ << ':' << __LINE__ << ':' << #text << ": " << text
 
 
-bool Worker::findPath(int start, int goal)
+std::vector<int> Worker::findPath(int start, int goal) noexcept
 {
-    auto const width = 5;
-    auto const height = 10;
-    m_field.generate(width, height, -1);
     auto graph = Graph(&m_field);
 
     auto path = std::vector<int>{};
@@ -25,9 +22,12 @@ bool Worker::findPath(int start, int goal)
         // TODO
     }
 
-    qDebug() << NAME_VALUE(result);
+    if (!result) {
+        qDebug() << __FILE__ << ":" << __LINE__ << ":" << "!result";
+        path.clear();
+    }
 
-    return result;
+    return path;
 }
 
 bool Worker::generateField(int width, int height)

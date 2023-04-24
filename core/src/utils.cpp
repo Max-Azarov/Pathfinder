@@ -7,6 +7,16 @@
 bool utils::bfsSearch(Graph const& graph, int start, int goal, std::vector<int>& path)
 {
     auto const n = graph.numVertices();
+
+    if (start > n - 1 ||
+        goal > n - 1 ||
+        start < 0 ||
+        goal < 0 ||
+        start == goal
+        ) {
+        return false;
+    }
+
     path.assign(n, -1);
 
     enum class EVertexColor {

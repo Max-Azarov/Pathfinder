@@ -2,6 +2,7 @@
 #define WORKER_H
 
 #include <memory>
+#include <vector>
 
 #include <QObject>
 
@@ -15,7 +16,7 @@ private:
 
 public:
 
-    bool findPath(int start, int goal);
+    std::vector<int> findPath(int start, int goal)  noexcept;
     bool generateField(int width, int height);
     Field const& field() const { return m_field; }
 
