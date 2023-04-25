@@ -79,7 +79,7 @@ void MainWindow::createScene()
 
         view->setScene(m_scene);
         view->setRenderHint(QPainter::Antialiasing);
-        //    view->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
+//            view->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
         //    view->setWindowTitle("Scene");
         view->setBackgroundBrush(palette().background());
     }

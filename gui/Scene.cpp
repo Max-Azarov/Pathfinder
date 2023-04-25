@@ -313,10 +313,24 @@ void Scene::createLine(int goal_idx)
 }
 
 
+void Scene::deleteChildItems(QGraphicsItem* item) {
+    if (!item) {
+        return;
+    }
+    else {
+        for(auto childItem : item->childItems()) {
+            deleteChildItems(childItem);
+            delete item;
+        }
+    }
+}
+
+
 void Scene::clearLine()
 {
     if (m_line) {
         this->removeItem(m_line);
+        deleteChildItems(m_line);
         m_line = nullptr;
     }
 }

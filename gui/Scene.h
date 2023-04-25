@@ -92,6 +92,7 @@ protected:
 
 private:
     void createLine(int goal_idx);
+    void deleteChildItems(QGraphicsItem* item);
 
 private:
     static int constexpr m_cellSize = 15;
