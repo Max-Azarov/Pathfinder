@@ -4,7 +4,6 @@
 #include <memory>
 #include <vector>
 
-#include <QObject>
 
 #include "core/include/Field.h"
 

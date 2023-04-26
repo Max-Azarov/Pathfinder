@@ -25,6 +25,9 @@ target_sources(${TARGET_NAME}
     gui/mainwindow.ui
     gui/Scene.h
     gui/Scene.cpp
+    gui/PathFinder.h
+    gui/Cells.h
+    gui/Cells.cpp
 
     core/include/Worker.h
     core/include/Graph.h

@@ -1,106 +1,20 @@
 #include <QDebug>
 #include <QGraphicsScene>
 #include <QGraphicsView>
-#include <QGraphicsItem>
-#include <QGraphicsRectItem>
-#include <QGraphicsSimpleTextItem>
-#include <QGraphicsLineItem>
-#include <QGraphicsItemGroup>
-#include <QGraphicsSceneWheelEvent>
-#include <QGraphicsSceneMouseEvent>
 
 
+#include "core/include/Field.h"
 #include "gui/Scene.h"
-#include "core/include/Worker.h"
+#include "gui/PathFinder.h"
 
 
 // ====================================================================================================================
-TextCell::TextCell(QGraphicsItem* parent)
-    : QGraphicsSimpleTextItem(parent)
-{}
-// ====================================================================================================================
-ATextCell::ATextCell(QGraphicsRectItem* parent)
-    : TextCell(parent)
+Scene::~Scene()
 {
-    setFont(QFont("Arial", 12));
-    setText("A");
-    setPos(parent->rect().center() - boundingRect().center());
-    setParentItem(parent);
-}
-// ====================================================================================================================
-BTextCell::BTextCell(QGraphicsRectItem* parent)
-    : TextCell(parent)
-{
-    setFont(QFont("Arial", 12));
-    setText("B");
-    setPos(parent->rect().center() - boundingRect().center());
-    setParentItem(parent);
-}
-// ====================================================================================================================
-Cell::Cell(QGraphicsItem* parent)
-    : QGraphicsRectItem(parent)
-{}
-
-void Cell::setPlaceNum(int placeNum) { m_placeNum = placeNum; }
-int Cell::placeNum() { return m_placeNum; }
-
-void Cell::setPathCell(Cell* cell) { m_pathCell = cell; }
-Cell* Cell::pathCell() { return m_pathCell; }
-// ====================================================================================================================
-WallCell::WallCell(QGraphicsItem* parent)
-    : Cell(parent)
-{}
-// ====================================================================================================================
-MovableCell::MovableCell(QGraphicsItem* parent)
-    : Cell(parent)
-{}
-
-void MovableCell::mousePressEvent(QGraphicsSceneMouseEvent*)
-{
-    Scene* pScene = nullptr;
-    try {
-        pScene = dynamic_cast<Scene*>(this->scene());
-    }
-    catch(...) {
-        return;
-    }
-
-    auto&& childs = this->childItems();
-
-    // set / unset A, B
-    if (childs.isEmpty()) {
-        if(!pScene->a())  {
-            pScene->setA(this);
-            new ATextCell(this);
-        }
-        else if(!pScene->b())  {
-            pScene->setB(this);
-            new BTextCell(this);
-
-            // finding
-            auto const isPathExist = pScene->findPath(pScene->a(), this);
-            if (!isPathExist) {
-                qDebug() << __FILE__ << ":" << __LINE__ << ":" << "!isPathExist";
-            }
-        }
-    }
-    else {
-        for (auto child : childs) {
-            auto textCell = (QGraphicsSimpleTextItem*)child;
-            if (textCell->text() == QString("B")) {
-                pScene->setB(nullptr);
-                delete child;
-                childs.clear();
-
-                pScene->clearLine();
-            }
-            else if (textCell->text() == QString("A") && !pScene->b()) {
-                pScene->setA(nullptr);
-                delete child;
-                childs.clear();
-            }
-        }
-    }
+    m_pathThread->quit();
+    m_pathThread->wait();
+    delete m_pathThread;
+    delete m_pathFinder;
 }
 // ====================================================================================================================
 bool Scene::init(int cols, int rows) noexcept
@@ -110,38 +24,43 @@ bool Scene::init(int cols, int rows) noexcept
     m_rows = rows;
     m_line = nullptr;
 
-    if (!m_worker) {
-        m_worker = Worker::create();
+    // Создаем объект для вычислений пути в отдельном потоке
+    if (!m_pathThread) {
+        m_pathFinder = new PathFinder(this);
+        m_pathThread = new PathFinderThread();
+        m_pathFinder->moveToThread(m_pathThread);
+        m_pathThread->start();
     }
 
-    if (!m_worker) {
-        qDebug() << __FILE__ << ":" << __LINE__ << ":" << "!worker";
-        return false;
-    }
+    emit initScene(cols, rows);
 
-    if (!m_worker->generateField(cols, rows)) {
-        return false;
-    }
+    return true;
+}
 
-    auto const& field = m_worker->field();
+
+void Scene::initSceneSlot(Field* field)
+{
+    if (!field) {
+        return;
+    }
 
     try {
-        m_cells.resize(field.cellsNum());
+        this->m_cells.resize(field->cellsNum());
     }
     catch(...) {
         qDebug() << __FILE__ << ":" << __LINE__ << ":" << "cur_row.second != cols";
-        return false;
+        return ;
     }
 
     Cell* cell{};
     int placeNum = 0;
-    for (int row = 0; row < rows; row++) {
-        auto const& cur_row = field.row(row);
-        if (cur_row.second != cols) {
+    for (int row = 0; row < m_rows; row++) {
+        auto const& cur_row = field->row(row);
+        if (cur_row.second != m_cols) {
             qDebug() << __FILE__ << ":" << __LINE__ << ":" << "cur_row.second != cols";
-            return false;
+            return ;
         }
-        for (int col = 0; col < cols; col++) {
+        for (int col = 0; col < m_cols; col++) {
             if (cur_row.first[col] == Field::ECellType::WALL) {
                 auto pCell = new WallCell();
                 pCell->setPlaceNum(placeNum);
@@ -157,20 +76,19 @@ bool Scene::init(int cols, int rows) noexcept
             }
             cell->setRect(col * m_cellSize, row * m_cellSize, m_cellSize, m_cellSize);
 
-            addItem(cell);
+            this->addItem(cell);
             m_cells[placeNum] = cell;
 
             placeNum++;
         }
     }
 
-    setSceneRect(0, 0,  m_cellSize * cols, m_cellSize * rows);
+    this->m_isFirstPaint = true;
+    this->setA(nullptr);
+    this->setB(nullptr);
 
-    m_isFirstPaint = true;
-    setA(nullptr);
-    setB(nullptr);
-
-    return true;
+    // Обновляем сцену с результатами вычислений
+    this->update();
 }
 
 
@@ -209,35 +127,36 @@ void Scene::resizeView(const QSize& oldSize, const QSize& size)
 
 bool Scene::findPath(Cell* start, Cell* goal)
 {
-    if (!start || !goal) {
-        qDebug() << __FILE__ << ":" << __LINE__ << ":" << "!start || !goal";
-        return false;
-    }
+    emit calcPath(start, goal);
 
-    auto const start_idx = start->placeNum();
-    auto const goal_idx = goal->placeNum();
-    auto path = m_worker->findPath(start_idx, goal_idx);
+    return true;
+}
 
-    if (path.empty() || path[goal_idx] < 0) {
-        qDebug() << __FILE__ << ":" << __LINE__ << ":" << "path hasn't been found";
-        return false;
+
+void Scene::foundPath(VectorHolder<int>* wrappedPath, int start, int goal)
+{
+    if (!wrappedPath || wrappedPath->value.size() != m_cells.size()) {
+        return;
     }
 
     for (auto& cell : m_cells) {
         cell->setPathCell(nullptr);
     }
 
-    auto idx = goal_idx;
-    while(idx != start_idx) {
-        auto const nextIdx = path[idx];
+    auto idx = goal;
+    while(idx != start) {
+        auto const nextIdx = wrappedPath->value[idx];
         m_cells[idx]->setPathCell(m_cells[nextIdx]);
         idx = nextIdx;
     }
 
-    this->createLine(goal_idx);
+    this->createLine(goal);
 
-    return true;
+    this->update();
+
+    delete wrappedPath;
 }
+
 
 void Scene::setA(Cell* cell) { m_ends[A] = cell; }
 Cell* Scene::a() const { return m_ends[A]; }
@@ -299,8 +218,8 @@ void Scene::createLine(int goal_idx)
         if (!m_line) {
             m_line = line;
         }
-
         line->setParentItem(prevLine);
+
         prevLine = line;
 
         cell1 = cell2;
@@ -320,8 +239,8 @@ void Scene::deleteChildItems(QGraphicsItem* item) {
     else {
         for(auto childItem : item->childItems()) {
             deleteChildItems(childItem);
-            delete item;
         }
+        delete item;
     }
 }
 

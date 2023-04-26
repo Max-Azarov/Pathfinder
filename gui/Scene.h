@@ -5,74 +5,38 @@
 #include <array>
 #include <vector>
 
+#include <QGraphicsScene>
+
 #include "core/include/Worker.h"
+#include "gui/Cells.h"
+//#include "gui/PathFinder.h"
+#include "gui/VectorHolder.h"
+
 
 class QGraphicsScene;
-class QGraphicsView;
-class QGraphicsItem;
-class QGraphicsRectItem;
-class QGraphicsLineItem;
-class QGraphicsSimpleTextItem;
 class QGraphicsSceneWheelEvent;
-class QGraphicsSceneMouseEvent;
+class QThread;
 
-class Worker;
+class Field;
+class PathFinder;
 
 
-// ====================================================================================================================
-class TextCell : public QGraphicsSimpleTextItem
-{
-public:
-    TextCell(QGraphicsItem* parent = nullptr);
-}; // class
-// ====================================================================================================================
-class ATextCell : public TextCell
-{
-public:
-    ATextCell(QGraphicsRectItem* parent = nullptr);
-}; // class
-// ====================================================================================================================
-class BTextCell : public TextCell
-{
-public:
-    BTextCell(QGraphicsRectItem* parent = nullptr);
-}; // class
-// ====================================================================================================================
-// ====================================================================================================================
-class Cell : public QGraphicsRectItem
-{
-public:
-    Cell(QGraphicsItem* parent = nullptr);
-    void setPlaceNum(int);
-    int placeNum();
-
-    void setPathCell(Cell*);
-    Cell* pathCell();
-
-private:
-    int m_placeNum{-1};
-    Cell* m_pathCell{};
-}; // class
-// ====================================================================================================================
-class MovableCell : public Cell
-{
-public:
-    MovableCell(QGraphicsItem* parent = nullptr);
-
-protected:
-    void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
-}; // class
-// ====================================================================================================================
-class WallCell : public Cell
-{
-public:
-    WallCell(QGraphicsItem* parent = nullptr);
-}; // class
 // ====================================================================================================================
 class Scene : public QGraphicsScene
 {
+    Q_OBJECT
+
+signals:
+    void initScene(int, int);
+    void calcPath(Cell*, Cell*);
+
+public slots:
+    void initSceneSlot(Field*);
+    void foundPath(VectorHolder<int>* wrappedPath, int start, int goal);
+
 public:
     Scene() = default;
+    ~Scene();
 
     bool init(int cols, int rows) noexcept;
     void initView();
@@ -104,11 +68,12 @@ private:
 
     bool m_isFirstPaint = true;
 
-    std::unique_ptr<Worker> m_worker;
-
     std::vector<Cell*> m_cells{};
 
     QGraphicsLineItem* m_line;
+
+    QThread* m_pathThread;
+    PathFinder* m_pathFinder;
 };
 // ====================================================================================================================
 
