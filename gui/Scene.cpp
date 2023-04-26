@@ -11,6 +11,23 @@
 // ====================================================================================================================
 Scene::~Scene()
 {
+    destroyThread();
+}
+// ====================================================================================================================
+void Scene::initThread()
+{
+    if (m_pathThread) {
+        return;
+    }
+
+    m_pathFinder = new PathFinder(this);
+    m_pathThread = new PathFinderThread();
+    m_pathFinder->moveToThread(m_pathThread);
+    m_pathThread->start();
+}
+// ====================================================================================================================
+void Scene::destroyThread()
+{
     m_pathThread->quit();
     m_pathThread->wait();
     delete m_pathThread;
@@ -24,13 +41,7 @@ bool Scene::init(int cols, int rows) noexcept
     m_rows = rows;
     m_line = nullptr;
 
-    // Создаем объект для вычислений пути в отдельном потоке
-    if (!m_pathThread) {
-        m_pathFinder = new PathFinder(this);
-        m_pathThread = new PathFinderThread();
-        m_pathFinder->moveToThread(m_pathThread);
-        m_pathThread->start();
-    }
+    initThread();
 
     emit initScene(cols, rows);
 
@@ -83,6 +94,8 @@ void Scene::initSceneSlot(Field* field)
         }
     }
 
+    this->setSceneRect(0, 0,  m_cellSize * m_cols, m_cellSize * m_rows);
+
     this->m_isFirstPaint = true;
     this->setA(nullptr);
     this->setB(nullptr);
@@ -127,6 +140,7 @@ void Scene::resizeView(const QSize& oldSize, const QSize& size)
 
 bool Scene::findPath(Cell* start, Cell* goal)
 {
+    emit setEnabledGenerate(false);
     emit calcPath(start, goal);
 
     return true;
@@ -136,11 +150,9 @@ bool Scene::findPath(Cell* start, Cell* goal)
 void Scene::foundPath(VectorHolder<int>* wrappedPath, int start, int goal)
 {
     if (!wrappedPath || wrappedPath->value.size() != m_cells.size()) {
+//        qDebug() << __FILE__ << ":" << __LINE__ << ":" << "path hasn't been found";
+        emit setEnabledGenerate(true);
         return;
-    }
-
-    for (auto& cell : m_cells) {
-        cell->setPathCell(nullptr);
     }
 
     auto idx = goal;
@@ -149,12 +161,15 @@ void Scene::foundPath(VectorHolder<int>* wrappedPath, int start, int goal)
         m_cells[idx]->setPathCell(m_cells[nextIdx]);
         idx = nextIdx;
     }
+    m_cells[start]->setPathCell(nullptr);
 
     this->createLine(goal);
 
     this->update();
 
     delete wrappedPath;
+
+    emit setEnabledGenerate(true);
 }
 
 

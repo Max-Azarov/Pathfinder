@@ -23,7 +23,7 @@ std::vector<int> Worker::findPath(int start, int goal) noexcept
     }
 
     if (!result) {
-        qDebug() << __FILE__ << ":" << __LINE__ << ":" << "!result";
+//        qDebug() << __FILE__ << ":" << __LINE__ << ":" << "!result";
         path.clear();
     }
 

@@ -19,7 +19,7 @@
 class PathFinderThread : public QThread {
 public:
     void run() override {
-//        this->exec();
+        this->exec();
     }
 }; // class
 
@@ -34,11 +34,6 @@ public:
         connect(this, &PathFinder::generated, scene, &Scene::initSceneSlot);
         connect(scene, &Scene::calcPath, this, &PathFinder::calculatePath);
         connect(this, &PathFinder::foundPath, scene, &Scene::foundPath);
-
-        if (!m_worker) {
-            qDebug() << __FILE__ << ":" << __LINE__ << ":" << "!worker";
-            return;
-        }
     }
 
 signals:
@@ -56,10 +51,12 @@ public slots:
         auto const goal_idx = goal->placeNum();
         auto path = m_worker->findPath(start_idx, goal_idx);
 
-        QThread::usleep(5000000);
+//        QThread::msleep(5000);
 
         if (path.empty() || path[goal_idx] < 0) {
-            qDebug() << __FILE__ << ":" << __LINE__ << ":" << "path hasn't been found";
+//            qDebug() << __FILE__ << ":" << __LINE__ << ":" << "path hasn't been found";
+            // not found
+            emit foundPath(nullptr, 0, 0);
             return ;
         }
 

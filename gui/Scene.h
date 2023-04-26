@@ -9,11 +9,9 @@
 
 #include "core/include/Worker.h"
 #include "gui/Cells.h"
-//#include "gui/PathFinder.h"
 #include "gui/VectorHolder.h"
 
 
-class QGraphicsScene;
 class QGraphicsSceneWheelEvent;
 class QThread;
 
@@ -27,6 +25,7 @@ class Scene : public QGraphicsScene
     Q_OBJECT
 
 signals:
+    void setEnabledGenerate(bool);
     void initScene(int, int);
     void calcPath(Cell*, Cell*);
 
@@ -57,6 +56,8 @@ protected:
 private:
     void createLine(int goal_idx);
     void deleteChildItems(QGraphicsItem* item);
+    void initThread();
+    void destroyThread();
 
 private:
     static int constexpr m_cellSize = 15;
