@@ -39,6 +39,11 @@ void Scene::destroyThread()
 bool Scene::init(int cols, int rows) noexcept
 {
     this->clear();
+    this->invalidate();
+
+if (m_line)
+    delete m_line;
+
     m_cols = cols;
     m_rows = rows;
     m_line = nullptr;
@@ -153,7 +158,7 @@ bool Scene::findPath(Cell* start, Cell* goal)
 void Scene::foundPath(VectorHolder<int>* wrappedPath, int start, int goal)
 {
     if (!wrappedPath || wrappedPath->value.size() != m_cells.size()) {
-//        qDebug() << __FILE__ << ":" << __LINE__ << ":" << "path hasn't been found";
+        //        qDebug() << __FILE__ << ":" << __LINE__ << ":" << "path hasn't been found";
         emit setEnabledGenerate(true);
         return;
     }
@@ -176,9 +181,29 @@ void Scene::foundPath(VectorHolder<int>* wrappedPath, int start, int goal)
 }
 
 
-void Scene::moveFindingPath(QMouseEvent* pe)
+void Scene::moveMouseOnItem(QGraphicsItem* item)
 {
-    qDebug() << __FILE__ << ":" << __LINE__ << ":" << pe->pos();
+    auto A = bool(this->a());
+    auto B = bool(this->b());
+
+    if (!item || !A || item == this->a())
+    {
+        if (!B) {
+            this->clearLine();
+        }
+        return;
+    }
+
+    auto const itemSize = item->boundingRect().size();
+    if (itemSize.width() < m_cellSize || itemSize.height() < m_cellSize) {
+        return;
+    }
+
+    if (A && !B && item != m_prevItem) {
+        //        qDebug() << __FILE__ << ":" << __LINE__ << ":" << item->boundingRect();
+        this->findPath(this->a(), (Cell*)item);
+        m_prevItem = item;
+    }
 }
 
 
@@ -221,7 +246,7 @@ void Scene::wheelEvent(QGraphicsSceneWheelEvent* event)
 }
 
 
-void Scene::createLine(int goal_idx)
+void Scene::createLine(int goal_idx, Qt::GlobalColor color)
 {
     Cell* cell1 = m_cells[goal_idx];
     if (!cell1) {
@@ -238,7 +263,7 @@ void Scene::createLine(int goal_idx)
         auto const p1 = cell1->rect().center();
         auto const p2 = cell2->rect().center();
         line->setLine(p1.x(), p1.y(), p2.x(), p2.y());
-        line->setPen(QPen(Qt::blue));
+        line->setPen(QPen(color));
         if (!m_line) {
             m_line = line;
         }

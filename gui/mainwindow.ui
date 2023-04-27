@@ -29,7 +29,7 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <widget class="QGraphicsView" name="graphicsView">
+         <widget class="MyGraphicsView" name="graphicsView">
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -238,6 +238,13 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MyGraphicsView</class>
+   <extends>QGraphicsView</extends>
+   <header>gui/MyGraphicsView.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

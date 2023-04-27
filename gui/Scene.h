@@ -33,7 +33,7 @@ signals:
 public slots:
     void initSceneSlot(const Field*);
     void foundPath(VectorHolder<int>* wrappedPath, int start, int goal);
-    void moveFindingPath(QMouseEvent*);
+    void moveMouseOnItem(QGraphicsItem*);
 
 public:
     Scene() = default;
@@ -56,7 +56,7 @@ protected:
     void wheelEvent(QGraphicsSceneWheelEvent* event) override;
 
 private:
-    void createLine(int goal_idx);
+    void createLine(int goal_idx, Qt::GlobalColor color = Qt::blue);
     void deleteChildItems(QGraphicsItem* item);
     void initThread();
     void destroyThread();
@@ -77,6 +77,8 @@ private:
 
     QThread* m_pathThread;
     PathFinder* m_pathFinder;
+
+    QGraphicsItem* m_prevItem{};
 };
 // ====================================================================================================================
 

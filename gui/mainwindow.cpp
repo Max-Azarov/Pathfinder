@@ -148,18 +148,20 @@ void MainWindow::createScene()
     }
 
     auto view = ui->graphicsView;
-    view->resetCachedContent();
 
     if (!m_scene) {
+        view->setCacheMode(QGraphicsView::CacheNone);
+
         m_scene = new Scene();
+
+        QObject::connect(view, &MyGraphicsView::hoverItem, m_scene, &Scene::moveMouseOnItem);
 
         view->setScene(m_scene);
         view->setRenderHint(QPainter::Antialiasing);
-        //            view->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
-        //    view->setWindowTitle("Scene");
-        view->setBackgroundBrush(palette().background());
+        view->setViewportUpdateMode(QGraphicsView::MinimalViewportUpdate);
+//        view->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
 
-//        QObject::connect(view, QGraphicsView::mouseMoveEvent, m_scene, Scene::moveFindingPath);
+        view->setBackgroundBrush(palette().background());
     }
 
     m_scene->init(m_rowsCols.width(), m_rowsCols.height());
