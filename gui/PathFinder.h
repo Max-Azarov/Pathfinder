@@ -54,7 +54,9 @@ public slots:
 //        QThread::msleep(5000);
 
         if (path.empty() || path[goal_idx] < 0) {
+
 //            qDebug() << __FILE__ << ":" << __LINE__ << ":" << "path hasn't been found";
+
             // not found
             emit foundPath(nullptr, 0, 0);
             return ;

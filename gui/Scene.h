@@ -14,6 +14,7 @@
 
 class QGraphicsSceneWheelEvent;
 class QThread;
+class QMouseEvent;
 
 class Field;
 class PathFinder;
@@ -32,6 +33,7 @@ signals:
 public slots:
     void initSceneSlot(const Field*);
     void foundPath(VectorHolder<int>* wrappedPath, int start, int goal);
+    void moveFindingPath(QMouseEvent*);
 
 public:
     Scene() = default;

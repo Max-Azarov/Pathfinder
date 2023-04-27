@@ -1,6 +1,8 @@
 #include <QDebug>
 #include <QGraphicsScene>
 #include <QGraphicsView>
+#include <QGraphicsSceneWheelEvent>
+#include <QMouseEvent>
 
 
 #include "core/include/Field.h"
@@ -171,6 +173,12 @@ void Scene::foundPath(VectorHolder<int>* wrappedPath, int start, int goal)
     delete wrappedPath;
 
     emit setEnabledGenerate(true);
+}
+
+
+void Scene::moveFindingPath(QMouseEvent* pe)
+{
+    qDebug() << __FILE__ << ":" << __LINE__ << ":" << pe->pos();
 }
 
 

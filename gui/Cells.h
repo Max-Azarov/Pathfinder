@@ -2,10 +2,14 @@
 #define CELLS_H
 
 
-#include <QGraphicsItem>
-#include <QGraphicsRectItem>
 #include <QGraphicsSimpleTextItem>
-#include <QGraphicsSceneMouseEvent>
+
+class QGraphicsItem;
+class QGraphicsRectItem;
+class QGraphicsSceneMouseEvent;
+//#include <QGraphicsItem>
+//#include <QGraphicsRectItem>
+//#include <QGraphicsSceneMouseEvent>
 
 
 // ====================================================================================================================
@@ -49,7 +53,8 @@ public:
     MovableCell(QGraphicsItem* parent = nullptr);
 
 protected:
-    void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
+    void mousePressEvent(QGraphicsSceneMouseEvent* ) override;
+
 }; // class
 // ====================================================================================================================
 class WallCell : public Cell

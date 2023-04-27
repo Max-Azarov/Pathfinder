@@ -8,6 +8,7 @@
 #include <QCloseEvent>
 
 #include "gui/mainwindow.h"
+#include "gui/MyGraphicsView.h"
 #include "./ui_mainwindow.h"
 #include "gui/Scene.h"
 
@@ -146,7 +147,7 @@ void MainWindow::createScene()
         return;
     }
 
-    auto& view = ui->graphicsView;
+    auto view = ui->graphicsView;
     view->resetCachedContent();
 
     if (!m_scene) {
@@ -157,6 +158,8 @@ void MainWindow::createScene()
         //            view->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
         //    view->setWindowTitle("Scene");
         view->setBackgroundBrush(palette().background());
+
+//        QObject::connect(view, QGraphicsView::mouseMoveEvent, m_scene, Scene::moveFindingPath);
     }
 
     m_scene->init(m_rowsCols.width(), m_rowsCols.height());

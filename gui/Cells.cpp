@@ -1,5 +1,9 @@
 #include <QFont>
 #include <QDebug>
+#include <QMouseEvent>
+#include <QGraphicsItem>
+#include <QGraphicsRectItem>
+#include <QGraphicsSceneMouseEvent>
 
 
 #include "gui/Scene.h"
@@ -45,7 +49,9 @@ WallCell::WallCell(QGraphicsItem* parent)
 // ====================================================================================================================
 MovableCell::MovableCell(QGraphicsItem* parent)
     : Cell(parent)
-{}
+{
+    this->setAcceptHoverEvents(true);
+}
 
 void MovableCell::mousePressEvent(QGraphicsSceneMouseEvent*)
 {
@@ -94,3 +100,4 @@ void MovableCell::mousePressEvent(QGraphicsSceneMouseEvent*)
         }
     }
 }
+

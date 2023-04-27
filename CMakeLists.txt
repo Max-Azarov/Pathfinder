@@ -28,6 +28,7 @@ target_sources(${TARGET_NAME}
     gui/PathFinder.h
     gui/Cells.h
     gui/Cells.cpp
+    gui/MyGraphicsView.h
 
     core/include/Worker.h
     core/include/Graph.h
