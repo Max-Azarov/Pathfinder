@@ -37,7 +37,7 @@ public:
     }
 
 signals:
-    void generated(Field*);
+    void generated(const Field*);
     void foundPath(VectorHolder<int>*, int, int);
 
 public slots:
@@ -80,7 +80,7 @@ public slots:
 
         auto field = m_worker->field();
 
-        emit generated(&field);
+        emit generated(field);
     }
 
 private:

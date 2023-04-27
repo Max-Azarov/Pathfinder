@@ -30,7 +30,7 @@ signals:
     void calcPath(Cell*, Cell*);
 
 public slots:
-    void initSceneSlot(Field*);
+    void initSceneSlot(const Field*);
     void foundPath(VectorHolder<int>* wrappedPath, int start, int goal);
 
 public:

@@ -37,7 +37,6 @@ target_sources(${TARGET_NAME}
     core/src/utils.cpp
     core/src/Worker.cpp
     core/src/Field.cpp
-
     )
 
 target_link_libraries(${TARGET_NAME} PRIVATE Qt5::Widgets)

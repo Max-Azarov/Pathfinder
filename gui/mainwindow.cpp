@@ -4,6 +4,8 @@
 #include <QPaintEvent>
 #include <QValidator>
 #include <QMessageBox>
+#include <QSettings>
+#include <QCloseEvent>
 
 #include "gui/mainwindow.h"
 #include "./ui_mainwindow.h"
@@ -36,6 +38,18 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {}
 
+
+void MainWindow::closeEvent(QCloseEvent* event)
+{
+    // Сохранение настроек в конфигурационный файл
+    QSettings settings("MyCompany", "pathfinder");
+    settings.setValue("pos", this->pos());
+    settings.setValue("size", this->size());
+
+    QMainWindow::closeEvent(event);
+}
+
+
 bool MainWindow::initWindow()
 {
     if (ui != nullptr) {
@@ -45,6 +59,13 @@ bool MainWindow::initWindow()
     try {
         ui = new Ui::MainWindow;
         ui->setupUi(this);
+
+        // Загрузка настроек из конфигурационного файла
+        QSettings settings("MyCompany", "pathfinder");
+        QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
+        QSize size = settings.value("size", QSize(400, 400)).toSize();
+        this->resize(size);
+        this->move(pos);
 
         this->generate();
 
@@ -98,15 +119,14 @@ void MainWindow::generate()
             return;
         }
 
-        if (m_rowsCols.width() * m_rowsCols.height() > 100 * 100) {
-            auto const n = QMessageBox::warning(nullptr,
+        if (m_rowsCols.width() * m_rowsCols.height() > 1000 * 1000) {
+            auto const n = QMessageBox::warning(this,
                                                 "Warning",
                                                 "Many squares have been queried which may adversely affect performance",
                                                 QMessageBox::Ok | QMessageBox::Retry,
                                                 QMessageBox::Ok
                                                 );
             if (n == QMessageBox::Retry) {
-                qDebug() << __FILE__ << ":" << __LINE__ << ":" << "empty";
                 ui->lineEditWidth->setText("15");
                 ui->lineEditHeight->setText("10");
                 tryAgain = true;
@@ -127,6 +147,8 @@ void MainWindow::createScene()
     }
 
     auto& view = ui->graphicsView;
+    view->resetCachedContent();
+
     if (!m_scene) {
         m_scene = new Scene();
 

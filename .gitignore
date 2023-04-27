@@ -76,3 +76,6 @@ build-*
 
 # Project settings
 *.user
+
+build
+

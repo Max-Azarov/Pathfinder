@@ -40,6 +40,7 @@ bool Scene::init(int cols, int rows) noexcept
     m_cols = cols;
     m_rows = rows;
     m_line = nullptr;
+    m_cells.clear();
 
     initThread();
 
@@ -49,14 +50,14 @@ bool Scene::init(int cols, int rows) noexcept
 }
 
 
-void Scene::initSceneSlot(Field* field)
+void Scene::initSceneSlot(const Field* field)
 {
     if (!field) {
         return;
     }
 
     try {
-        this->m_cells.resize(field->cellsNum());
+        m_cells.resize(field->cellsNum());
     }
     catch(...) {
         qDebug() << __FILE__ << ":" << __LINE__ << ":" << "cur_row.second != cols";

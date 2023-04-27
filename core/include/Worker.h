@@ -17,7 +17,7 @@ public:
 
     std::vector<int> findPath(int start, int goal)  noexcept;
     bool generateField(int width, int height);
-    Field const& field() const { return m_field; }
+    const Field* field() const { return &m_field; }
 
     static std::unique_ptr<Worker> create() noexcept;
 
