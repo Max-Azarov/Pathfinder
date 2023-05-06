@@ -38,16 +38,13 @@ void Scene::destroyThread()
 // ====================================================================================================================
 bool Scene::init(int cols, int rows) noexcept
 {
-    this->clear();
-    this->invalidate();
-
-if (m_line)
-    delete m_line;
-
+    clearLine();
     m_cols = cols;
     m_rows = rows;
-    m_line = nullptr;
     m_cells.clear();
+
+    this->clear();
+    this->invalidate();
 
     initThread();
 
