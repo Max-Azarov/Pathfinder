@@ -30,7 +30,7 @@ std::vector<int> Worker::findPath(int start, int goal) noexcept
     return path;
 }
 
-bool Worker::generateField(int width, int height)
+bool Worker::generateField(int width, int height) noexcept
 {
     return m_field.generate(width, height, -1);
 }

@@ -8,16 +8,16 @@
 #include "core/include/Field.h"
 
 
-class Worker : public QObject {
+class Worker {
 
 private:
     Field m_field{};
 
 public:
 
-    std::vector<int> findPath(int start, int goal)  noexcept;
-    bool generateField(int width, int height);
-    const Field* field() const { return &m_field; }
+    std::vector<int> findPath(int start, int goal) noexcept;
+    bool generateField(int width, int height) noexcept;
+    const Field* field() const noexcept { return &m_field; }
 
     static std::unique_ptr<Worker> create() noexcept;
 
