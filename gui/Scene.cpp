@@ -156,6 +156,7 @@ void Scene::foundPath(VectorHolder<int>* wrappedPath, int start, int goal)
 {
     if (!wrappedPath || wrappedPath->value.size() != m_cells.size()) {
         //        qDebug() << __FILE__ << ":" << __LINE__ << ":" << "path hasn't been found";
+        this->clearLine();
         emit setEnabledGenerate(true);
         return;
     }
