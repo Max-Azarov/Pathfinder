@@ -192,8 +192,9 @@ void Scene::moveMouseOnItem(QGraphicsItem* item)
         return;
     }
 
-    auto const itemSize = item->boundingRect().size();
-    if (itemSize.width() < m_cellSize || itemSize.height() < m_cellSize) {
+//    auto const itemSize = item->boundingRect().size();
+    //    if (itemSize.width() < m_cellSize || itemSize.height() < m_cellSize) {
+    if (item->type() != Cell::Type) {
         return;
     }
 

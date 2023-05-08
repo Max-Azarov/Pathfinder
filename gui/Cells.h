@@ -42,7 +42,7 @@ public:
     void setPathCell(Cell*);
     Cell* pathCell();
 
-private:
+protected:
     int m_placeNum{-1};
     Cell* m_pathCell{};
 }; // class
