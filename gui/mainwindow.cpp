@@ -154,13 +154,9 @@ void MainWindow::createScene()
 
         m_scene = new Scene();
 
-        QObject::connect(view, &MyGraphicsView::hoverItem, m_scene, &Scene::moveMouseOnItem);
-
         view->setScene(m_scene);
         view->setRenderHint(QPainter::Antialiasing);
-        view->setViewportUpdateMode(QGraphicsView::MinimalViewportUpdate);
-//        view->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
-
+        view->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
         view->setBackgroundBrush(palette().background());
     }
 
