@@ -4,13 +4,15 @@
 #include <memory>
 #include <vector>
 
+#include <QObject>
 #include <QThread>
 #include <QGraphicsScene>
 #include <QDebug>
 
 #include "core/include/Worker.h"
 #include "gui/Cells.h"
-#include "gui/Scene.h"
+#include "gui/sceneItems/AbstractCell.h"
+#include "gui/Manager.h"
 #include "gui/VectorHolder.h"
 
 
@@ -24,16 +26,17 @@ public:
 }; // class
 
 
-class PathFinder : public QObject {
+class PathFinder : public QObject
+{
     Q_OBJECT
 public:
-    PathFinder(Scene* scene)
+    PathFinder(Manager* scene)
         : m_worker(Worker::create())
     {
-        connect(scene, &Scene::initScene, this, &PathFinder::generate);
-        connect(this, &PathFinder::generated, scene, &Scene::initSceneSlot);
-        connect(scene, &Scene::calcPath, this, &PathFinder::calculatePath);
-        connect(this, &PathFinder::foundPath, scene, &Scene::foundPath);
+        connect(scene, &Manager::initScene, this, &PathFinder::generate);
+        connect(this, &PathFinder::generated, scene, &Manager::initCells);
+        connect(scene, &Manager::calcPath, this, &PathFinder::calculatePath);
+        connect(this, &PathFinder::foundPath, scene, &Manager::foundPath);
     }
 
 signals:
@@ -41,14 +44,14 @@ signals:
     void foundPath(VectorHolder<int>*, int, int);
 
 public slots:
-    void calculatePath(Cell* start, Cell* goal) {
+    void calculatePath(AbstractCell* start, AbstractCell* goal) {
         if (!start || !goal) {
             qDebug() << __FILE__ << ":" << __LINE__ << ":" << "!start || !goal";
             return ;
         }
 
-        auto const start_idx = start->placeNum();
-        auto const goal_idx = goal->placeNum();
+        auto const start_idx = start->placeNum;
+        auto const goal_idx = goal->placeNum;
         auto path = m_worker->findPath(start_idx, goal_idx);
 
 //        QThread::msleep(5000);
@@ -63,6 +66,7 @@ public slots:
         auto wrappedPath = new VectorHolder<int>(std::move(path));
         emit foundPath(wrappedPath, int(start_idx), int(goal_idx));
     }
+
 
     void generate(int cols, int rows) {
         if (!m_worker) {

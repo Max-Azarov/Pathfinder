@@ -4,7 +4,8 @@
 #include <QGraphicsRectItem>
 
 class AbstractCell : public QGraphicsRectItem {
-
+public:
+    const int placeNum{};
 };
 
 #endif // ABSTRACTCELL_H

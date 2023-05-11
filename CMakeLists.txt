@@ -25,16 +25,23 @@ target_sources(${TARGET_NAME}
     gui/mainwindow.ui
     gui/Scene.h
     gui/Scene.cpp
-    gui/PathFinder.h
-    gui/Cells.h
-    gui/Cells.cpp
     gui/MyGraphicsView.h
+    gui/PathFinder.h
+    gui/Manager.h
+    gui/Manager.cpp
+
+    gui/sceneItems/AWayPoint.h
+    gui/sceneItems/AbstractCell.h
+    gui/sceneItems/AbstractWayPoint.h
+    gui/sceneItems/BWayPoint.h
+    gui/sceneItems/MovableCell.h
+    gui/sceneItems/PathLine.h
+    gui/sceneItems/WallCell.h
 
     core/include/Worker.h
     core/include/Graph.h
     core/include/utils.h
     core/include/Field.h
-
     core/src/utils.cpp
     core/src/Worker.cpp
     core/src/Field.cpp

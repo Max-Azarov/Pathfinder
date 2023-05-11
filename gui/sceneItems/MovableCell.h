@@ -12,6 +12,9 @@ public:
         : m_manager(manager)
     {}
 
+protected:
+    void mousePressEvent(QGraphicsSceneMouseEvent* ) override;
+
 private:
     Manager* m_manager;
 };
