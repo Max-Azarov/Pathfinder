@@ -10,10 +10,9 @@
 #include <QDebug>
 
 #include "core/include/Worker.h"
-#include "gui/Cells.h"
 #include "gui/sceneItems/AbstractCell.h"
-#include "gui/Manager.h"
-#include "gui/VectorHolder.h"
+#include "gui/control/Manager.h"
+#include "gui/control/VectorHolder.h"
 
 
 
@@ -30,13 +29,11 @@ class PathFinder : public QObject
 {
     Q_OBJECT
 public:
-    PathFinder(Manager* scene)
+    PathFinder(Manager* manager)
         : m_worker(Worker::create())
     {
-        connect(scene, &Manager::initScene, this, &PathFinder::generate);
-        connect(this, &PathFinder::generated, scene, &Manager::initCells);
-        connect(scene, &Manager::calcPath, this, &PathFinder::calculatePath);
-        connect(this, &PathFinder::foundPath, scene, &Manager::foundPath);
+        connect(manager, &Manager::initScene, this, &PathFinder::generate);
+        connect(manager, &Manager::calcPath, this, &PathFinder::calculatePath);
     }
 
 signals:

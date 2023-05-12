@@ -7,24 +7,30 @@
 
 #include "core/include/Field.h"
 #include "gui/Scene.h"
-#include "gui/PathFinder.h"
 
 
 
 // ====================================================================================================================
 bool Scene::init(int cols, int rows) noexcept
 {
-    clearLine();
-    m_cols = cols;
-    m_rows = rows;
-    m_cells.clear();
-
     this->clear();
-    this->invalidate();
+    m_manager.clear();
+    if(!m_manager.init(cols, rows)) {
+        qDebug() << __FILE__ << ":" << __LINE__ << ":" << "!m_manager.init()";
+        return false;
+    }
 
-    initThread();
+//    clearLine();
+//    m_cols = cols;
+//    m_rows = rows;
+//    m_cells.clear();
 
-    emit initScene(cols, rows);
+//    this->clear();
+//    this->invalidate();
+
+//    initThread();
+
+//    emit initScene(cols, rows);
 
     return true;
 }

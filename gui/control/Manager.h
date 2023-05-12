@@ -8,10 +8,6 @@
 #include <QObject>
 #include <QThread>
 
-#include "gui/VectorHolder.h"
-#include "gui/sceneItems/PathLine.h"
-#include "gui/sceneItems/AbstractCell.h"
-#include "gui/sceneItems/AbstractWayPoint.h"
 
 class QThread;
 
@@ -23,16 +19,22 @@ class Scene;
 class Field;
 
 
+template<class T>
+class VectorHolder;
+
+
 class Manager : public QObject
 {
     Q_OBJECT
 public:
     Manager(Scene* );
     Manager() = delete;
-    ~Manager() = default;
+    ~Manager();
 
     void onClicked(AbstractCell*) noexcept;
     void onClicked(AbstractWayPoint*) noexcept;
+    bool init(int cols, int rows) noexcept;
+    void clear() noexcept;
 
 signals:
     void initScene(int, int);
@@ -43,19 +45,24 @@ public slots:
     void foundPath(VectorHolder<int>* wrappedPath, int start, int goal);
 
 private:
-    void initThread() noexcept;
+    void initThread();
     void destroyThread() noexcept;
 
 private:
-    struct {
-        std::uint8_t a : 1;
-        std::uint8_t b : 1;
-        std::uint8_t   : 6;
+    Scene* m_scene = nullptr;
+
+    union {
+        std::uint8_t common;
+        struct {
+            std::uint8_t a : 1;
+            std::uint8_t b : 1;
+            std::uint8_t   : 6;
+        } value;
     } m_state{};
 
-    PathFinder* m_pathFinder = nullptr;
-    std::unique_ptr<QThread> m_pathThread = nullptr;
-    std::unique_ptr<PathLine> m_pathLine = nullptr;
+    std::unique_ptr<PathFinder> m_pathFinder{};
+    std::unique_ptr<QThread> m_pathThread{};
+    std::unique_ptr<PathLine> m_pathLine{};
     std::vector<std::unique_ptr<AbstractCell>> m_field{};
     std::vector<std::unique_ptr<AbstractWayPoint>> m_wayPoints{};
 };

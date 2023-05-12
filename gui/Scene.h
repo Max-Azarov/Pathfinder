@@ -4,7 +4,7 @@
 
 #include <QGraphicsScene>
 
-#include "gui/Manager.h"
+#include "gui/control/Manager.h"
 
 
 // ====================================================================================================================
@@ -14,16 +14,15 @@ class Scene : public QGraphicsScene
 signals:
     void setEnabledGenerate(bool);
 
-
 public:
     bool init(int cols, int rows) noexcept;
     void initView() noexcept;
     void resizeView(const QSize& oldSize, const QSize& size) noexcept;
 
+    static int constexpr cellSize = 15;
 private:
-    static int constexpr m_cellSize = 15;
-    int m_rows{};
-    int m_cols{};
+//    int m_rows{};
+//    int m_cols{};
 
     bool m_isFirstPaint = true;
 

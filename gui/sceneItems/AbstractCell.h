@@ -5,7 +5,7 @@
 
 class AbstractCell : public QGraphicsRectItem {
 public:
-    const int placeNum{};
+    int placeNum{};
 };
 
 #endif // ABSTRACTCELL_H
