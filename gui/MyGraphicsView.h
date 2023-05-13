@@ -23,7 +23,7 @@ protected:
     void mouseMoveEvent(QMouseEvent* event) override
     {
         QGraphicsItem* item = itemAt(event->pos());
-//        qDebug() << event->pos();
+
         emit hoverItem(item);
 
         QGraphicsView::mouseMoveEvent(event);

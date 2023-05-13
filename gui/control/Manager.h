@@ -4,21 +4,16 @@
 #include <vector>
 #include <cstdint>
 #include <memory>
-#include <stack>
 
-#include <QObject>
 #include <QThread>
 
-#include "gui/sceneItems/AbstractWayPoint.h"
-
-
-class QThread;
-
 class AbstractCell;
+class AbstractWayPoint;
 class PathFinder;
 class PathLine;
 class Scene;
 class Field;
+class QGraphicsItem;
 
 
 template<class T>
@@ -52,10 +47,12 @@ signals:
 public slots:
     void initCells(const Field*);
     void foundPath(VectorHolder<int>* wrappedPath, int start, int goal);
+    void moveMouseOnItem(QGraphicsItem*);
 
 private:
     void initThread();
     void destroyThread() noexcept;
+    void removePathLine() noexcept;
 
 private:
     Scene* m_scene = nullptr;
@@ -64,9 +61,11 @@ private:
     std::unique_ptr<QThread> m_pathThread{};
 
     std::vector<std::unique_ptr<AbstractCell>> m_field{};
-    std::vector<std::unique_ptr<PathLine>> m_pathLine{};
+    std::vector<std::unique_ptr<AbstractWayPoint>> m_wayPoints{};
 
-    std::stack<std::unique_ptr<AbstractWayPoint>> m_wayPoints{};
+    std::unique_ptr<PathLine> m_pathLine{};
+
+    QGraphicsItem* m_prevMoveMouseOnItem = nullptr;
 };
 
 #endif // MANAGER_H

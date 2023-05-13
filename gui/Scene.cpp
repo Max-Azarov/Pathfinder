@@ -9,32 +9,20 @@
 #include "gui/Scene.h"
 
 
-
 // ====================================================================================================================
 bool Scene::init(int cols, int rows) noexcept
 {
     m_manager.clear();
+
     this->clear();
+    this->invalidate();
+
     if(!m_manager.init(cols, rows)) {
         qDebug() << __FILE__ << ":" << __LINE__ << ":" << "!m_manager.init()";
         return false;
     }
-//    initView();
-    views().at(0)->setSceneRect(this->itemsBoundingRect());
 
-
-
-//    clearLine();
-//    m_cols = cols;
-//    m_rows = rows;
-//    m_cells.clear();
-
-//    this->clear();
-//    this->invalidate();
-
-//    initThread();
-
-//    emit initScene(cols, rows);
+    m_isFirstPaint = true;
 
     return true;
 }
@@ -101,4 +89,10 @@ void Scene::wheelEvent(QGraphicsSceneWheelEvent* event)
     views().at(0)->scale(scaleFactor, scaleFactor);
 }
 // ====================================================================================================================
+void Scene::setAccessedGenerate(bool state)
+{
+    emit setEnabledGenerate(state);
+}
+// ====================================================================================================================
+
 

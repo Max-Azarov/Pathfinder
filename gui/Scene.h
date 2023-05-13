@@ -18,6 +18,7 @@ public:
     bool init(int cols, int rows) noexcept;
     void initView() noexcept;
     void resizeView(const QSize& oldSize, const QSize& size) noexcept;
+    void setAccessedGenerate(bool);
 
     static int constexpr cellSize = 15;
 
@@ -25,9 +26,6 @@ protected:
     void wheelEvent(QGraphicsSceneWheelEvent* event) override;
 
 private:
-//    int m_rows{};
-//    int m_cols{};
-
     bool m_isFirstPaint = true;
 
     Manager m_manager{this};

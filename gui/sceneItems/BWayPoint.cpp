@@ -1,6 +1,7 @@
+#include <QFont>
 
 #include "gui/sceneItems/BWayPoint.h"
-#include "gui/Scene.h"
+#include "gui/control/Manager.h"
 
 
 // --------------------------------------------------------------------------------------------------------------------

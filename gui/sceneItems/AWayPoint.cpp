@@ -1,7 +1,7 @@
 #include <QFont>
 
 #include "gui/sceneItems/AWayPoint.h"
-#include "gui/Scene.h"
+#include "gui/control/Manager.h"
 
 
 // --------------------------------------------------------------------------------------------------------------------

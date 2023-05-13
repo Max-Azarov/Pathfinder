@@ -31,15 +31,16 @@ target_sources(${TARGET_NAME}
     gui/control/Manager.cpp
     gui/control/VectorHolder.h
 
-    gui/sceneItems/AWayPoint.h
-    gui/sceneItems/AWayPoint.cpp
     gui/sceneItems/AbstractCell.h
     gui/sceneItems/AbstractWayPoint.h
+    gui/sceneItems/AWayPoint.h
+    gui/sceneItems/AWayPoint.cpp
     gui/sceneItems/BWayPoint.h
     gui/sceneItems/BWayPoint.cpp
     gui/sceneItems/MovableCell.h
     gui/sceneItems/MovableCell.cpp
     gui/sceneItems/PathLine.h
+    gui/sceneItems/PathLine.cpp
     gui/sceneItems/WallCell.h
     gui/sceneItems/WallCell.cpp
 

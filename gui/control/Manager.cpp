@@ -11,6 +11,7 @@
 #include "gui/sceneItems/MovableCell.h"
 #include "gui/sceneItems/AWayPoint.h"
 #include "gui/sceneItems/BWayPoint.h"
+#include "gui/MyGraphicsView.h"
 
 
 Manager::Manager(Scene* scene)
@@ -113,55 +114,72 @@ void Manager::initCells(const Field* field)
         }
 
         m_scene->setSceneRect(0, 0,  Scene::cellSize * cols, Scene::cellSize * rows);
-        m_scene->initView();
-        m_scene->update();
+
+        if (!m_scene->views().empty()) {
+            auto view = (MyGraphicsView*)m_scene->views().front();
+            QObject::connect(view, &MyGraphicsView::hoverItem, this, &Manager::moveMouseOnItem);
+        }
     }
     catch(...) {
-        qDebug() << __FILE__ << ":" << __LINE__ << ":" << "cur_row.second != cols";
+        qDebug() << __FILE__ << ":" << __LINE__ << ":" << "catch(...)";
         return ;
     }
 }
 // ====================================================================================================================
-
 void Manager::foundPath(VectorHolder<int>* wrappedPath, int start, int goal)
 {
-    //    if (!wrappedPath || wrappedPath->value.size() != m_field.size()) {
-    //        //        qDebug() << __FILE__ << ":" << __LINE__ << ":" << "path hasn't been found";
-    //        this->clearLine();
-    //        emit setEnabledGenerate(true);
-    //        return;
-    //    }
+    if (!wrappedPath || wrappedPath->value.size() != m_field.size()) {
+        removePathLine();
+        m_scene->setAccessedGenerate(true);
+        return;
+    }
 
-    //    auto idx = goal;
-    //    while(idx != start) {
-    //        auto const nextIdx = wrappedPath->value[idx];
-    //        m_cells[idx]->setPathCell(m_cells[nextIdx]);
-    //        idx = nextIdx;
-    //    }
-    //    m_cells[start]->setPathCell(nullptr);
+    try {
+        m_pathLine = std::make_unique<PathLine>(this);
+    }
+    catch(...) {
+        qDebug() << __FILE__ << ":" << __LINE__ << ":" << "catch(...)";
+        return;
+    }
 
-    //    this->createLine(goal);
+    {
+        // calc line length
+        auto length = 1;
+        auto idx = goal;
+        while(idx != start) {
+            auto const nextIdx = wrappedPath->value[idx];
+            idx = nextIdx;
+            length++;
+        }
+        m_pathLine->reserve(length);
+    }
+    {
+        // create the path line by adding the lines
+        auto idx = goal;
+        while(idx != start) {
+            auto const nextIdx = wrappedPath->value[idx];
+            auto const p1 = m_field[idx]->rect().center();
+            auto const p2 = m_field[nextIdx]->rect().center();
+            m_pathLine->add(QLineF{p1, p2});
+            idx = nextIdx;
+        }
+    }
 
-    //    this->update();
+    for(auto const& item : m_pathLine->items()) {
+        m_scene->addItem(item.get());
+    }
 
-    //    delete wrappedPath;
+    m_scene->update();
 
-    //    emit setEnabledGenerate(true);
+    delete wrappedPath;
+
+    m_scene->setAccessedGenerate(true);
 }
-
 // ====================================================================================================================
 void Manager::clear() noexcept
 {
-    // TODO remove AbstractWayPoint from scene
-    while(!m_wayPoints.empty()) {
-        m_wayPoints.pop();
-    }
-    //    m_wayPoints.clear();
-
-    // TODO remove PathLine from scene
-    m_pathLine.clear();
-
-    // TODO remove AbstractCell from scene
+    m_wayPoints.clear();
+    removePathLine();
     m_field.clear();
 
     m_scene->clear();
@@ -173,15 +191,19 @@ void Manager::onClicked(AbstractCell* item) noexcept
         return;
     }
 
+    enum {
+        NONE, ONLY_A, AB
+    };
+
     try {
         if (m_wayPoints.empty()) {
             // add A
             auto cell = std::make_unique<AWayPoint>(this);
             cell->setPos(item->rect().center() - cell->boundingRect().center());
             cell->setParentItem(item);
-            m_wayPoints.emplace(std::move(cell));
+            m_wayPoints.emplace_back(std::move(cell));
         }
-        else if (m_wayPoints.size() == 1) {
+        else if (m_wayPoints.size() == ONLY_A) {
             auto&& childs = item->childItems();
 
             if (childs.isEmpty()) {
@@ -189,22 +211,33 @@ void Manager::onClicked(AbstractCell* item) noexcept
                 auto cell = std::make_unique<BWayPoint>(this);
                 cell->setPos(item->rect().center() - cell->boundingRect().center());
                 cell->setParentItem(item);
-                m_wayPoints.emplace(std::move(cell));
+                m_wayPoints.emplace_back(std::move(cell));
             }
             else {
                 // remove A
                 childs.clear();
-                m_wayPoints.pop();
+                m_wayPoints.clear();
             }
         }
-        else if (m_wayPoints.size() == 2) {
+        else if (m_wayPoints.size() == AB) {
             auto&& childs = item->childItems();
 
             if (!childs.isEmpty() && childs.front()->type() == BWayPoint(this).type()) {
                 // remove B
                 childs.clear();
-                m_wayPoints.pop();
+                m_wayPoints.resize(ONLY_A);
+
+                removePathLine();
             }
+            else {
+                return;
+            }
+        }
+
+        if (m_wayPoints.size() == AB) {
+            m_scene->setAccessedGenerate(false);
+            emit calcPath((AbstractCell*)m_wayPoints[0]->parentItem(),
+                    (AbstractCell*)m_wayPoints[1]->parentItem());
         }
     }
     catch(...) {
@@ -213,4 +246,47 @@ void Manager::onClicked(AbstractCell* item) noexcept
 
 }
 // ====================================================================================================================
+void Manager::removePathLine() noexcept
+{ m_pathLine.reset(); }
+// ====================================================================================================================
+void Manager::moveMouseOnItem(QGraphicsItem* item)
+{
+    enum {
+        NONE, ONLY_A, AB
+    };
 
+    if (!item) {
+        if (m_wayPoints.size() != AB) {
+            removePathLine();
+        }
+        return;
+    }
+
+    if (item->type() == QGraphicsLineItem().type() || m_prevMoveMouseOnItem == item) {
+        return;
+    }
+
+    m_prevMoveMouseOnItem = item;
+
+    if (m_wayPoints.size() == ONLY_A) {
+        removePathLine();
+        if(item->type() == MovableCell(this, 0).type()) {
+            MovableCell* pCell = nullptr;
+            try {
+                pCell = dynamic_cast<MovableCell*>(item);
+            }
+            catch(...) {
+                qDebug() << __FILE__ << ":" << __LINE__ << ":" << "!item";
+                return;
+            }
+
+            auto&& childs = item->childItems();
+
+            if (childs.isEmpty()) {
+                m_scene->setAccessedGenerate(false);
+                emit calcPath((AbstractCell*)m_wayPoints[0]->parentItem(), pCell);
+            }
+        }
+    }
+}
+// ====================================================================================================================

@@ -1,7 +1,7 @@
 #include <QPen>
 
 #include "gui/sceneItems/WallCell.h"
-#include "gui/Scene.h"
+#include "gui/control/Manager.h"
 
 
 // --------------------------------------------------------------------------------------------------------------------

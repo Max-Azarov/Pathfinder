@@ -70,7 +70,7 @@ bool MainWindow::initWindow()
 
         this->generate();
 
-        QObject::connect(ui->pushButtonGenerate, &QPushButton::released, this, &MainWindow::generate);
+        QObject::connect(ui->pushButtonGenerate, &QPushButton::clicked, this, &MainWindow::generate);
         QObject::connect(m_scene, &Scene::setEnabledGenerate, ui->pushButtonGenerate, &QPushButton::setEnabled);
 
         if (m_rowsCols.isEmpty()) {
@@ -80,10 +80,8 @@ bool MainWindow::initWindow()
 
         return true;
     }
-    catch(...)
-    {
-        // TODO
-    }
+    catch(...) {}
+    qDebug() << __FILE__ << ":" << __LINE__ << ":" << "catch(...) {}";
 
     return false;
 }
@@ -136,7 +134,6 @@ void MainWindow::generate()
     }
 
     this->createScene();
-    this->repaint();
 }
 
 
@@ -161,6 +158,8 @@ void MainWindow::createScene()
     }
 
     m_scene->init(m_rowsCols.width(), m_rowsCols.height());
+    view->update();
+    view->repaint();
 }
 
 void MainWindow::paintEvent(QPaintEvent*)
