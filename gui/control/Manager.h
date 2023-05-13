@@ -4,15 +4,17 @@
 #include <vector>
 #include <cstdint>
 #include <memory>
+#include <stack>
 
 #include <QObject>
 #include <QThread>
+
+#include "gui/sceneItems/AbstractWayPoint.h"
 
 
 class QThread;
 
 class AbstractCell;
-class AbstractWayPoint;
 class PathFinder;
 class PathLine;
 class Scene;
@@ -32,9 +34,16 @@ public:
     ~Manager();
 
     void onClicked(AbstractCell*) noexcept;
-    void onClicked(AbstractWayPoint*) noexcept;
     bool init(int cols, int rows) noexcept;
     void clear() noexcept;
+
+    enum ItemType {
+        WALL_CELL = 1,
+        MOVABLE_CELL,
+        PATH_LINE,
+        A_WAY_POINT,
+        B_WAY_POINT,
+    };
 
 signals:
     void initScene(int, int);
@@ -51,20 +60,13 @@ private:
 private:
     Scene* m_scene = nullptr;
 
-    union {
-        std::uint8_t common;
-        struct {
-            std::uint8_t a : 1;
-            std::uint8_t b : 1;
-            std::uint8_t   : 6;
-        } value;
-    } m_state{};
-
     std::unique_ptr<PathFinder> m_pathFinder{};
     std::unique_ptr<QThread> m_pathThread{};
-    std::unique_ptr<PathLine> m_pathLine{};
+
     std::vector<std::unique_ptr<AbstractCell>> m_field{};
-    std::vector<std::unique_ptr<AbstractWayPoint>> m_wayPoints{};
+    std::vector<std::unique_ptr<PathLine>> m_pathLine{};
+
+    std::stack<std::unique_ptr<AbstractWayPoint>> m_wayPoints{};
 };
 
 #endif // MANAGER_H

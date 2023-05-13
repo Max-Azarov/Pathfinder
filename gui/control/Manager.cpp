@@ -1,7 +1,7 @@
 
 
 #include "gui/control/Manager.h"
-#include "gui/control/PathFinder.h"
+#include "gui/control/FieldCreatorAndPathFinder.h"
 #include "gui/control/VectorHolder.h"
 #include "gui/Scene.h"
 #include "gui/sceneItems/PathLine.h"
@@ -152,15 +152,65 @@ void Manager::foundPath(VectorHolder<int>* wrappedPath, int start, int goal)
 // ====================================================================================================================
 void Manager::clear() noexcept
 {
-    m_state.common = 0;
+    // TODO remove AbstractWayPoint from scene
+    while(!m_wayPoints.empty()) {
+        m_wayPoints.pop();
+    }
+    //    m_wayPoints.clear();
 
     // TODO remove PathLine from scene
-    m_pathLine.reset();
+    m_pathLine.clear();
 
     // TODO remove AbstractCell from scene
     m_field.clear();
 
-    // TODO remove AbstractWayPoint from scene
-    m_wayPoints.clear();
+    m_scene->clear();
 }
 // ====================================================================================================================
+void Manager::onClicked(AbstractCell* item) noexcept
+{
+    if (!item) {
+        return;
+    }
+
+    try {
+        if (m_wayPoints.empty()) {
+            // add A
+            auto cell = std::make_unique<AWayPoint>(this);
+            cell->setPos(item->rect().center() - cell->boundingRect().center());
+            cell->setParentItem(item);
+            m_wayPoints.emplace(std::move(cell));
+        }
+        else if (m_wayPoints.size() == 1) {
+            auto&& childs = item->childItems();
+
+            if (childs.isEmpty()) {
+                // add B
+                auto cell = std::make_unique<BWayPoint>(this);
+                cell->setPos(item->rect().center() - cell->boundingRect().center());
+                cell->setParentItem(item);
+                m_wayPoints.emplace(std::move(cell));
+            }
+            else {
+                // remove A
+                childs.clear();
+                m_wayPoints.pop();
+            }
+        }
+        else if (m_wayPoints.size() == 2) {
+            auto&& childs = item->childItems();
+
+            if (!childs.isEmpty() && childs.front()->type() == BWayPoint(this).type()) {
+                // remove B
+                childs.clear();
+                m_wayPoints.pop();
+            }
+        }
+    }
+    catch(...) {
+        qDebug() << __FILE__ << ":" << __LINE__ << ":" << "catch(...) {}";
+    }
+
+}
+// ====================================================================================================================
+

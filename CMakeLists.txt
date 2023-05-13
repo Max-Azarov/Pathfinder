@@ -26,19 +26,22 @@ target_sources(${TARGET_NAME}
     gui/Scene.h
     gui/Scene.cpp
     gui/MyGraphicsView.h
-    gui/control/PathFinder.h
+    gui/control/FieldCreatorAndPathFinder.h
     gui/control/Manager.h
     gui/control/Manager.cpp
     gui/control/VectorHolder.h
 
     gui/sceneItems/AWayPoint.h
+    gui/sceneItems/AWayPoint.cpp
     gui/sceneItems/AbstractCell.h
     gui/sceneItems/AbstractWayPoint.h
     gui/sceneItems/BWayPoint.h
+    gui/sceneItems/BWayPoint.cpp
     gui/sceneItems/MovableCell.h
     gui/sceneItems/MovableCell.cpp
     gui/sceneItems/PathLine.h
     gui/sceneItems/WallCell.h
+    gui/sceneItems/WallCell.cpp
 
     core/include/Worker.h
     core/include/Graph.h

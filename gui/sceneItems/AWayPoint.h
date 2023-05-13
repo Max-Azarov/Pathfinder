@@ -8,9 +8,10 @@ class Manager;
 
 class AWayPoint : public AbstractWayPoint {
 public:
-    AWayPoint(Manager* manager)
-        : m_manager(manager)
-    {}
+    AWayPoint(Manager* manager);
+    ~AWayPoint() = default;
+
+    int type() const override;
 
 private:
     Manager* m_manager;

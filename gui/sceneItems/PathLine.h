@@ -11,6 +11,8 @@ public:
         : m_manager(manager)
     {}
 
+    int type() const override;
+
 private:
     Manager* m_manager;
 };

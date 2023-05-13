@@ -20,6 +20,10 @@ public:
     void resizeView(const QSize& oldSize, const QSize& size) noexcept;
 
     static int constexpr cellSize = 15;
+
+protected:
+    void wheelEvent(QGraphicsSceneWheelEvent* event) override;
+
 private:
 //    int m_rows{};
 //    int m_cols{};
